@@ -8,7 +8,6 @@ __pycache__/
 *.zip
 DOCUMENTATION.html
 images/
-static/
 node_modules/
 dist/
 build/

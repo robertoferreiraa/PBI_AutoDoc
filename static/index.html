@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PBI AutoDoc — Documentação de Relatórios</title>
+  <meta name="description" content="Gere documentação completa para seus relatórios Power BI de forma automática e eficiente." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<!-- =====================================================================
+     SIDEBAR
+====================================================================== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <img src="/logo.png" alt="PBI AutoDoc Logo" />
+    </div>
+    <div class="logo-text">
+      <span class="logo-title">PBI AutoDoc</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-tab="upload" id="nav-upload">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <span>Upload Arquivo</span>
+    </button>
+
+    <button class="nav-item" data-tab="service" id="nav-service">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+      </svg>
+      <span>Power BI Service</span>
+    </button>
+
+    <button class="nav-item" data-tab="metadata" id="nav-metadata" disabled>
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="9" y1="3" x2="9" y2="21"/>
+        <line x1="15" y1="3" x2="15" y2="21"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+      </svg>
+      <span>Metadados</span>
+    </button>
+
+    <button class="nav-item" data-tab="docs" id="nav-docs" disabled>
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <span>Documentação</span>
+    </button>
+
+    <button class="nav-item" data-tab="chat" id="nav-chat" disabled>
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span>Explorador</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-config">
+    <div class="config-label">Modelo LLM</div>
+    <select id="model-select" class="select-input">
+      <option value="">Carregando...</option>
+    </select>
+    <div class="config-label" style="margin-top:12px">Idioma da documentação</div>
+    <select id="language-select" class="select-input">
+      <option value="Português">🇧🇷 Português</option>
+      <option value="English">🇺🇸 English</option>
+      <option value="Español">🇪🇸 Español</option>
+    </select>
+  </div>
+</aside>
+
+<!-- =====================================================================
+     MAIN CONTENT
+====================================================================== -->
+<main class="main-content">
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="topbar-title" id="page-title">Upload de Arquivo</div>
+    <div class="topbar-actions">
+      <div class="status-badge" id="status-badge">
+        <span class="status-dot idle"></span>
+        <span class="status-text">Aguardando arquivo</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== TAB: UPLOAD ===== -->
+  <section class="tab-panel active" id="tab-upload">
+    <div class="panel-inner">
+      <div class="section-header">
+        <h1 class="section-title">Upload de Arquivo Power BI</h1>
+        <p class="section-desc">Faça upload do seu arquivo <code>.pbix</code>, <code>.pbit</code> ou <code>.zip</code> para extrair e documentar automaticamente.</p>
+      </div>
+
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" fill="url(#dz-grad)" opacity=".15"/>
+            <path d="M32 20v16M24 28l8-8 8 8" stroke="url(#dz-grad2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 44h24" stroke="url(#dz-grad2)" stroke-width="2.5" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="dz-grad" x1="4" y1="4" x2="60" y2="60">
+                <stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+              </linearGradient>
+              <linearGradient id="dz-grad2" x1="4" y1="4" x2="60" y2="60">
+                <stop stop-color="#6366f1"/><stop offset="1" stop-color="#a78bfa"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <p class="drop-zone-title">Arraste seu arquivo aqui</p>
+        <p class="drop-zone-sub">ou clique para selecionar</p>
+        <p class="drop-zone-types">.pbix &nbsp;·&nbsp; .pbit &nbsp;·&nbsp; .zip</p>
+        <input type="file" id="file-input" accept=".pbix,.pbit,.zip" hidden />
+      </div>
+
+      <div class="file-info hidden" id="file-info">
+        <div class="file-info-icon">📄</div>
+        <div class="file-info-details">
+          <span class="file-info-name" id="file-info-name"></span>
+          <span class="file-info-size" id="file-info-size"></span>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="btn-clear-file">✕</button>
+      </div>
+
+      <div class="upload-actions">
+        <button class="btn btn-primary btn-lg" id="btn-upload" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Processar Arquivo
+        </button>
+      </div>
+
+      <div class="upload-progress hidden" id="upload-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="upload-progress-bar"></div>
+        </div>
+        <span class="progress-label" id="upload-progress-label">Enviando...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: SERVICE ===== -->
+  <section class="tab-panel" id="tab-service">
+    <div class="panel-inner">
+      <div class="section-header">
+        <h1 class="section-title">Power BI Service</h1>
+        <p class="section-desc">Conecte-se ao Power BI Service via Azure AD para documentar datasets publicados.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🔐</div>
+          <div>
+            <div class="card-title">Credenciais Azure AD</div>
+            <div class="card-subtitle">Service Principal (Client Credentials)</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="tenant-id">Tenant ID</label>
+            <input class="form-input" type="text" id="tenant-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="client-id">Client ID (App ID)</label>
+            <input class="form-input" type="text" id="client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+          </div>
+          <div class="form-group form-group-full">
+            <label class="form-label" for="client-secret">Client Secret</label>
+            <input class="form-input" type="password" id="client-secret" placeholder="Seu secret value do Azure AD" />
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-connect">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          Conectar ao Power BI Service
+        </button>
+      </div>
+
+      <!-- Workspace / Dataset selectors -->
+      <div class="service-selectors hidden" id="service-selectors">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🗂️</div>
+            <div class="card-title">Selecionar Dataset</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="workspace-select">Workspace</label>
+              <select class="form-input" id="workspace-select">
+                <option value="">Selecione um workspace...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dataset-select">Dataset</label>
+              <select class="form-input" id="dataset-select" disabled>
+                <option value="">Selecione um dataset...</option>
+              </select>
+            </div>
+            <div class="form-group form-group-full">
+              <label class="form-label" for="service-report-name">Nome do Relatório</label>
+              <input class="form-input" type="text" id="service-report-name" placeholder="Nome para identificar na documentação" />
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-extract-service" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <polyline points="8 17 12 21 16 17"/>
+              <line x1="12" y1="3" x2="12" y2="21"/>
+            </svg>
+            Extrair Metadados
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: METADATA ===== -->
+  <section class="tab-panel" id="tab-metadata">
+    <div class="panel-inner">
+      <div class="section-header">
+        <h1 class="section-title">Metadados Extraídos</h1>
+        <p class="section-desc" id="metadata-report-name">—</p>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-tables">0</div>
+          <div class="stat-label">Tabelas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-measures">0</div>
+          <div class="stat-label">Medidas DAX</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-columns">0</div>
+          <div class="stat-label">Colunas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-rels">0</div>
+          <div class="stat-label">Relacionamentos</div>
+        </div>
+      </div>
+
+      <div class="tabs-sub">
+        <button class="tab-sub active" data-sub="tables">Tabelas</button>
+        <button class="tab-sub" data-sub="measures">Medidas</button>
+        <button class="tab-sub" data-sub="columns">Colunas</button>
+        <button class="tab-sub" data-sub="relationships">Relacionamentos</button>
+      </div>
+
+      <div class="data-table-container">
+        <table class="data-table" id="metadata-table">
+          <thead id="metadata-thead"></thead>
+          <tbody id="metadata-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="generate-bar">
+        <div class="generate-bar-text">Pronto para gerar a documentação?</div>
+        <button class="btn btn-primary btn-lg" id="btn-generate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Gerar Documentação
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: DOCS ===== -->
+  <section class="tab-panel" id="tab-docs">
+    <div class="panel-inner">
+      <div class="section-header">
+        <h1 class="section-title">Documentação Gerada</h1>
+        <p class="section-desc">Revise a documentação gerada e exporte no formato desejado.</p>
+      </div>
+
+      <!-- Progress -->
+      <div class="generation-progress" id="generation-progress">
+        <div class="progress-ring-wrapper">
+          <svg class="progress-ring" width="80" height="80">
+            <circle class="progress-ring-track" cx="40" cy="40" r="34" fill="none" stroke-width="6"/>
+            <circle class="progress-ring-fill" id="progress-ring-fill" cx="40" cy="40" r="34" fill="none" stroke-width="6"
+                    stroke-dasharray="213.6" stroke-dashoffset="213.6"/>
+          </svg>
+          <span class="progress-ring-pct" id="progress-ring-pct">0%</span>
+        </div>
+        <div class="progress-msg" id="progress-msg">Iniciando...</div>
+      </div>
+
+      <!-- Result -->
+      <div class="doc-result hidden" id="doc-result">
+        <div class="doc-section" id="doc-info-section"></div>
+        <div class="doc-section" id="doc-tables-section"></div>
+        <div class="doc-section" id="doc-measures-section"></div>
+        <div class="doc-section" id="doc-sources-section"></div>
+      </div>
+
+      <!-- Download bar -->
+      <div class="download-bar hidden" id="download-bar">
+        <div class="download-bar-text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Documentação gerada com sucesso!
+        </div>
+        <div class="download-btns">
+          <button class="btn btn-outline" id="btn-download-excel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Excel
+          </button>
+          <button class="btn btn-outline" id="btn-download-word">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Word
+          </button>
+          <button class="btn btn-ghost" id="btn-to-chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+            Explorar Dados
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: CHAT ===== -->
+  <section class="tab-panel" id="tab-chat">
+    <div class="panel-inner chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <h1 class="section-title">Explorador do Relatório</h1>
+          <p class="section-desc">Consulte detalhes sobre tabelas, medidas, fontes de dados e relacionamentos do seu relatório.</p>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-message assistant">
+          <div class="chat-avatar">Sys</div>
+          <div class="chat-bubble">
+            Olá! O ambiente está pronto. Explore o relatório documentado consultando tabelas, medidas DAX, fontes de dados e relacionamentos de forma interativa.
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <textarea
+          class="chat-input"
+          id="chat-input"
+          placeholder="Ex: Quais são as principais medidas deste relatório? Como funciona a medida X?"
+          rows="1"
+        ></textarea>
+        <button class="btn btn-primary chat-send" id="btn-chat-send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container"></div>
+
+</main>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
