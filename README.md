@@ -45,42 +45,8 @@ A aplicação automatiza o ciclo de vida da documentação técnica através de 
 
 ## 🚀 Como Executar
 
-### Pré-requisitos
-- Python 3.9+
-- Chave de API de um provedor de LLM (OpenAI, Gemini, etc.)
+Acesse a aplicação diretamente pelo link:
+[https://web-production-e4a3c.up.railway.app](https://web-production-e4a3c.up.railway.app)
 
-### Instalação Local
-
-1. **Clone o repositório**:
-   ```bash
-   git clone https://github.com/robertoferreiraa/PBI_AutoDoc.git
-   cd PBI_AutoDoc
-   ```
-
-2. **Crie um ambiente virtual**:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Linux/Mac
-   .venv\Scripts\activate     # Windows
-   ```
-
-3. **Instale as dependências**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure as variáveis de ambiente**:
-   Crie um arquivo `.env` na raiz do projeto:
-   ```env
-   OPENAI_API_KEY=sua_chave_aqui
-   GEMINI_API_KEY=sua_chave_aqui
-   DEFAULT_MODEL=gpt-4o-mini
-   ```
-
-5. **Inicie a aplicação**:
-   ```bash
-   python main.py
-   ```
-   Acesse: `http://localhost:8000`
 
 ---
