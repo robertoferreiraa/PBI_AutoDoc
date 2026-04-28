@@ -84,21 +84,3 @@ A aplicação automatiza o ciclo de vida da documentação técnica através de 
    Acesse: `http://localhost:8000`
 
 ---
-
-## ☁️ Deploy no Railway
-
-Este projeto está configurado para deploy imediato no **Railway.app**.
-
-1. Conecte seu repositório no painel do Railway.
-2. Adicione as chaves de API nas **Variables**.
-3. O deploy será feito automaticamente usando o `Procfile` incluso.
-
----
-
-## 📝 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
-Desenvolvido com ❤️ por [Roberto Ferreira](https://github.com/robertoferreiraa)
