@@ -291,7 +291,8 @@ async def generate_docs_sse(session_id: str, modelo: str, language: str = "Portu
     progress_queue: asyncio.Queue = asyncio.Queue()
 
     def progress_callback(step: int, total: int, msg: str):
-        progress_queue.put_nowait({"step": step, "total": total, "message": msg})
+        # asyncio.Queue não é thread-safe. Usamos call_soon_threadsafe para enviar do worker thread para o loop principal.
+        loop.call_soon_threadsafe(progress_queue.put_nowait, {"step": step, "total": total, "message": msg})
 
     loop = asyncio.get_event_loop()
 
@@ -307,15 +308,17 @@ async def generate_docs_sse(session_id: str, modelo: str, language: str = "Portu
             session["language"] = language
             await progress_queue.put({"done": True, "doc_resultado": doc_resultado})
         except Exception as e:
-            await progress_queue.put({"error": str(e)})
+            import traceback
+            traceback.print_exc()
+            await progress_queue.put({"error_msg": str(e)})
 
     asyncio.ensure_future(run_generation())
 
     async def event_generator():
         while True:
             event = await progress_queue.get()
-            if "error" in event:
-                yield {"event": "error", "data": json.dumps({"detail": event["error"]})}
+            if "error_msg" in event:
+                yield {"event": "gen_error", "data": json.dumps({"detail": event["error_msg"]})}
                 break
             if event.get("done"):
                 yield {"event": "done", "data": json.dumps({"doc_resultado": event["doc_resultado"]})}

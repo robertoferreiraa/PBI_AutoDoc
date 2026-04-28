@@ -446,7 +446,7 @@ function startGeneration() {
     showToast('🎉 Documentação gerada com sucesso!', 'success');
   });
 
-  es.addEventListener('error', e => {
+  es.addEventListener('gen_error', e => {
     es.close();
     let msg = 'Erro desconhecido';
     try { msg = JSON.parse(e.data).detail; } catch {}
@@ -455,10 +455,16 @@ function startGeneration() {
     setProgress(0, 'Erro: ' + msg);
   });
 
-  es.onerror = () => {
-    es.close();
-    setStatus('error', 'Conexão perdida');
-    showToast('Conexão SSE perdida. Tente novamente.', 'error');
+  es.onerror = (e) => {
+    // Se o readyState for CLOSED, foi fechado propositalmente ou falha crítica.
+    // Se for CONNECTING, ele está tentando reconectar.
+    if (es.readyState === EventSource.CLOSED) {
+      setStatus('error', 'Conexão perdida');
+      showToast('A conexão com o servidor foi encerrada inesperadamente.', 'error');
+    } else {
+      console.warn('SSE reconnecting...', e);
+      setStatus('working', 'Tentando reconectar...');
+    }
   };
 }
 
