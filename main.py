@@ -315,17 +315,32 @@ async def generate_docs_sse(session_id: str, modelo: str, language: str = "Portu
     asyncio.ensure_future(run_generation())
 
     async def event_generator():
+        # Envia um evento inicial imediato para o Railway saber que a conexão está ativa
+        yield {"event": "progress", "data": json.dumps({"step": 0, "total": 100, "message": "Iniciando orquestração IA..."})}
+        
+        last_pct = 0
         while True:
-            event = await progress_queue.get()
-            if "error_msg" in event:
-                yield {"event": "gen_error", "data": json.dumps({"detail": event["error_msg"]})}
-                break
-            if event.get("done"):
-                yield {"event": "done", "data": json.dumps({"doc_resultado": event["doc_resultado"]})}
-                break
-            yield {"event": "progress", "data": json.dumps(event)}
+            try:
+                # Espera por um evento da thread de processamento por no máximo 15 segundos
+                event = await asyncio.wait_for(progress_queue.get(), timeout=15.0)
+                
+                if "error_msg" in event:
+                    yield {"event": "gen_error", "data": json.dumps({"detail": event["error_msg"]})}
+                    break
+                if event.get("done"):
+                    yield {"event": "done", "data": json.dumps({"doc_resultado": event["doc_resultado"]})}
+                    break
+                
+                step = event.get('step', 0)
+                total = event.get('total', 100)
+                last_pct = round((step / total) * 100) if total else last_pct
+                yield {"event": "progress", "data": json.dumps(event)}
+                
+            except asyncio.TimeoutError:
+                # Heartbeat manual para manter o Proxy do Railway vivo
+                yield {"event": "progress", "data": json.dumps({"step": last_pct, "total": 100, "message": "IA ainda processando..."})}
 
-    return EventSourceResponse(event_generator())
+    return EventSourceResponse(event_generator(), ping=20)
 
 
 # ---------------------------------------------------------------------------
@@ -440,4 +455,5 @@ app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # Desativado reload para estabilidade em tarefas longas
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
