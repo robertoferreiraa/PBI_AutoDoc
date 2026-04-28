@@ -83,7 +83,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.logo-icon img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+.logo-icon img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
 
 .logo-title {
   display: block;
