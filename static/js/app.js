@@ -72,6 +72,11 @@ function enableTab(tabId) {
 // MODELS
 // =====================================================================
 async function loadModels() {
+  const modelLabels = {
+    'gpt-4.1-mini': 'GPT-4 (OpenAI)',
+    'gemini/gemini-2.5-flash-preview-04-17': 'Gemini 2.5 (Google)',
+    'claude-3-7-sonnet-20250219': 'Claude 3.7 (Anthropic)'
+  };
   try {
     const data = await apiFetch('/api/models');
     const sel = $('#model-select');
@@ -79,7 +84,7 @@ async function loadModels() {
     data.models.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m;
-      opt.textContent = m;
+      opt.textContent = modelLabels[m] || m;
       if (m === data.default) opt.selected = true;
       sel.appendChild(opt);
     });
