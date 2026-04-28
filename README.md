@@ -8,6 +8,17 @@
 
 ---
 
+## 🧐 Overview: Como funciona?
+
+A aplicação automatiza o ciclo de vida da documentação técnica através de 4 pilares principais:
+
+1.  **Extração de Metadados**: O sistema lê arquivos `.pbix`/`.pbit` ou se conecta via API ao Power BI Service para capturar a estrutura do modelo (tabelas, colunas, relacionamentos e medidas DAX) sem acessar os dados sensíveis.
+2.  **Processamento por IA**: Utilizando modelos como GPT-4o e Gemini, a ferramenta interpreta fórmulas DAX complexas e as "traduz" em explicações de regras de negócio claras e concisas.
+3.  **Geração Multi-Formato**: Os insights gerados são estruturados e exportados automaticamente para documentos **Word (.docx)** profissionais ou planilhas **Excel (.xlsx)** técnicas.
+4.  **Interface Interativa**: Além da documentação estática, o usuário pode interagir com um Chat inteligente para tirar dúvidas específicas sobre a lógica do relatório em tempo real.
+
+---
+
 ## ✨ Funcionalidades
 
 - **📂 Extração Multi-Fonte**: 
