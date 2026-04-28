@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+*.pbix
+*.pbit
+*.zip
+DOCUMENTATION.html
+images/
+static/
+node_modules/
+dist/
+build/
